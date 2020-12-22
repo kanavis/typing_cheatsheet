@@ -2,9 +2,11 @@
 Примеры использования type hinting
 Хинты доступны с python 3.5, но некоторые виды синтаксиса появлялись позже
 """
+import contextlib
 import random
 from typing import (
     List, Dict, Union, Any, Set, Tuple, TypeVar, Type, NamedTuple, Generic,
+    Generator, Iterable, Iterator, Callable, ContextManager, IO,
 )
 
 
@@ -83,6 +85,44 @@ class MyTuple(NamedTuple):
 
 
 t = MyTuple(d={'a': 1}, l=['a', 'b'], a=1, s='abcde')
+
+
+# Итерируемое: сюда подойдёт любой тип, который можно итерировать
+i1: Iterable[str] = ['a', 'b', 'c']
+i2: Iterable[int] = (x for x in range(10))
+
+
+# Итератор
+i3: Iterator[int] = iter([1, 2, 3])
+
+
+# Простой генератор
+def gen1(arg1: List[int]) -> Generator[int, None, None]:
+    for x in arg1:
+        yield x
+
+
+# Простой генератор также реализует Iterable и Iterator
+gen1_1: Iterable[int] = gen1([1, 2])
+gen1_2: Iterator[int] = gen1([3, 4])
+
+
+# Сложный генератор
+# (спёр у python.org https://docs.python.org/3/library/typing.html)
+def gen2() -> Generator[int, float, str]:
+    sent = yield 0
+    while sent >= 0:
+        sent = yield round(sent)
+    return 'Done'
+
+
+# Callable - всё, что можно вызвать
+def fn5(arg1: str, arg2: int) -> bool:
+    return int(arg1) == arg2
+
+
+var_fn5: Callable[[str, int], bool] = fn5
+lambda1: Callable[[int], str] = lambda x: str(x)
 
 
 # TypeVar - нужен для создания дженериков. Аналог дженерик-аргумента во многих
@@ -195,3 +235,43 @@ class CompleteGenericClass1SubclassBoolStr(PartialGenericClass1SubclassBool[str]
     """ Доопределение второго дженерик-аргумента """
     def get_typed_a2(self) -> str:
         return self.get_a2()
+
+
+# Декораторы можно захинтить, но:
+# если обычный - ещё ничего ...
+def decor1(outer: Callable[..., T]) -> Callable[..., T]:
+    def inner(**kwargs) -> T:
+        return outer(**kwargs)
+
+    return inner
+
+
+# ... то параметризированный посложнее, а без дополинтельной переменной - жесть
+TFnArg = Callable[..., T]
+
+
+def decor2(param: str) -> Callable[[TFnArg], TFnArg]:
+    def decorator(outer: TFnArg) -> TFnArg:
+        print(param)
+
+        def inner(**kwargs) -> T:
+            return outer(**kwargs)
+
+        return inner
+
+    return decorator
+
+
+# Менеджеры контекстов
+# спёрто у pythonsheets https://www.pythonsheets.com/notes/python-typing.html
+@contextlib.contextmanager
+def open_file(name: str) -> Generator[IO, None, None]:
+    f = open(name)
+    yield f
+    f.close()
+
+
+# Так можно только в 3.6, а ещё pycharm ругается,
+# но кажется, это всё-таки верно
+# https://youtrack.jetbrains.com/issue/PY-46135
+cm: ContextManager[IO] = open_file(__file__)

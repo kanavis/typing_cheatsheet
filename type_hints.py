@@ -74,7 +74,7 @@ complex1: TMyConfig = {
 # namedtuple(), тем более в typing есть его брат: NamedTuple
 
 
-# NamedTuple, аналог collections.NamedTuple, но типизированный
+# NamedTuple, аналог collections.namedtuple, но типизированный
 class MyTuple(NamedTuple):
     d: Dict[str, int]
     l: List[str]

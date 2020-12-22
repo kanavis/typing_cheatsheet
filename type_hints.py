@@ -4,9 +4,9 @@
 """
 import random
 from typing import (
-    List, Dict, Union, Any, Set, Tuple, TypeVar, 
-    Type, NamedTuple, Generic,
+    List, Dict, Union, Any, Set, Tuple, TypeVar, Type, NamedTuple, Generic,
 )
+
 
 # Аргументы
 def fn1(arg1: bool, arg2: str, arg3: int, arg4: float):
@@ -71,7 +71,7 @@ complex1: TMyConfig = {
 }
 # NB: это хорошо подходит, если ключей каждого подтипа в словаре может быть
 # 0 или более. Если набор ключей всегда одинаковый, лучше использовать
-# namedtuple(), тем более в typing есть его брат: NamedTuple
+# namedtuple, тем более в typing есть его брат: NamedTuple
 
 
 # NamedTuple, аналог collections.namedtuple, но типизированный
@@ -99,8 +99,36 @@ U = TypeVar('U')
 #
 # Хорошее IDE подскажет методы str, если написать
 # fn_t(['a']).
-def fn_t(arg1: List[T]) -> T:
+def fn_t1(arg1: List[T]) -> T:
     return random.choice(arg1)
+
+
+# TypeVar можно делать связанным, тогда все значения этого аргумента должны
+# подходить под описанный хинт
+V = TypeVar('V', bound=C1)   # Сабкласс C1 тоже подойдёт
+V1 = TypeVar('V1', bound=Union[str, int])
+
+
+class C2(C1):
+    pass
+
+
+def fn_t2(arg1: V) -> V:
+    return arg1
+
+
+fn_t2(C1())
+fn_t2(C2())
+# но не fn_t2('abcd')
+
+
+def fn_t3(arg1: V1) -> V1:
+    return arg1
+
+
+fn_t3('aa')
+fn_t3(123)
+# Но не fn_t3(1.0)
 
 
 # Дженерик фабричный метод, использует typing.Type

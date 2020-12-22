@@ -3,9 +3,10 @@
 Хинты доступны с python 3.5, но некоторые виды синтаксиса появлялись позже
 """
 import random
-from typing import List, Dict, Union, Any, Set, Tuple, TypeVar, Type, \
-    NamedTuple, Generic
-
+from typing import (
+    List, Dict, Union, Any, Set, Tuple, TypeVar, 
+    Type, NamedTuple, Generic,
+)
 
 # Аргументы
 def fn1(arg1: bool, arg2: str, arg3: int, arg4: float):
